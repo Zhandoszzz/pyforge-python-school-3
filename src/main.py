@@ -1,3 +1,4 @@
+from os import getenv
 from pydantic import BaseModel
 from rdkit import Chem
 from fastapi import FastAPI, HTTPException, status, File, UploadFile
@@ -11,6 +12,11 @@ molecules_db = []
 class Molecule(BaseModel):
     id: int
     smile: str
+
+
+@app.get("/")
+def get_server():
+    return {"server_id": getenv("SERVER_ID")}
 
 
 @app.post("/molecules", status_code=status.HTTP_201_CREATED)
