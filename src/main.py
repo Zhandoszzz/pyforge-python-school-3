@@ -6,7 +6,7 @@ import json
 
 
 app = FastAPI()
-molecules_db = []
+molecules_db = {}
 
 
 class Molecule(BaseModel):
@@ -21,35 +21,36 @@ def get_server():
 
 @app.post("/molecules", status_code=status.HTTP_201_CREATED)
 def add_molecule(mol: Molecule):
-    molecules_db.append(mol.dict())
+    if mol.id in molecules_db:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                            detail='Molecule already exists')
+    molecules_db[mol.id] = mol.smile
     return mol
 
 
 @app.get("/molecules/{mol_id}")
 def get_molecule_by_id(mol_id: int):
-    for mol in molecules_db:
-        if mol['id'] == mol_id:
-            return mol
+    if mol_id in molecules_db:
+        return molecules_db[mol_id]
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                         detail='Molecule Not Found')
 
 
 @app.put("/molecules/{mol_id}")
 def update_molecule_by_id(mol_id: int, updated_mol: Molecule):
-    for index, mol in enumerate(molecules_db):
-        if mol['id'] == mol_id:
-            molecules_db[index] = updated_mol.dict()
-            return updated_mol
+    if mol_id in molecules_db:
+        del molecules_db[mol_id]
+        molecules_db[updated_mol.id] = updated_mol.smile
+        return updated_mol
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                         detail='Molecule Not Found')
 
 
 @app.delete("/molecules/{mol_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_molecule_by_id(mol_id: int):
-    for index, mol in enumerate(molecules_db):
-        if mol['id'] == mol_id:
-            molecules_db.pop(index)
-            return f"Molecule with id {mol_id} is deleted"
+    if mol_id in molecules_db:
+        del molecules_db[mol_id]
+        return f"Molecule with id {mol_id} is deleted"
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                         detail='Molecule Not Found')
 
@@ -61,10 +62,9 @@ def list_all_molecules():
 
 @app.get("/search")
 def substructure_search(mol: str):
-    result = []
     mol = Chem.MolFromSmiles(mol)
-    result = [m['smile'] for m in molecules_db if Chem.MolFromSmiles(
-        m['smile']).HasSubstructMatch(mol)]
+    result = {id: smile for id, smile in molecules_db.items() if Chem.MolFromSmiles(
+        smile).HasSubstructMatch(mol)}
     return result
 
 
@@ -78,7 +78,13 @@ async def upload_file_with_molecules(file: UploadFile = File(...)):
     content_str = content.decode('utf-8')
     try:
         molecules_list = json.loads(content_str)
-        molecules_db.extend(molecules_list)
+        for molecule in molecules_list:
+            molecule_id = molecule['id']
+            molecule_smile = molecule['smile']
+            if molecule_id in molecules_db:
+                raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                                    detail='Molecule already exists')
+            molecules_db[molecule_id] = molecule_smile
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail='Error processing file')
