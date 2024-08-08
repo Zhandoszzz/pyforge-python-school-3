@@ -63,6 +63,9 @@ def list_all_molecules():
 @app.get("/search")
 def substructure_search(mol: str):
     mol = Chem.MolFromSmiles(mol)
+    if not mol:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail='Invalid input')
     result = {id: smile for id, smile in molecules_db.items() if Chem.MolFromSmiles(
         smile).HasSubstructMatch(mol)}
     return result
