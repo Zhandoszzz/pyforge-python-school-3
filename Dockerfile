@@ -2,8 +2,9 @@ FROM continuumio/miniconda3
 
 WORKDIR /src
 
-RUN conda install -c conda-forge rdkit \
-    && pip install fastapi uvicorn
+COPY ./requirements.txt .
+
+RUN pip install --no-cache-dir -r /src/requirements.txt
 
 COPY ./src /src
 
