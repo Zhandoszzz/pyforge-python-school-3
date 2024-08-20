@@ -1,3 +1,4 @@
+from os import getenv
 from pydantic import BaseModel
 from rdkit import Chem
 from fastapi import FastAPI, HTTPException, status, File, UploadFile
@@ -11,6 +12,11 @@ molecules_db = {}
 class Molecule(BaseModel):
     id: int
     smile: str
+
+
+@app.get("/")
+def get_server():
+    return {"server_id": getenv("SERVER_ID")}
 
 
 @app.post("/molecules", status_code=status.HTTP_201_CREATED)
@@ -57,6 +63,9 @@ def list_all_molecules():
 @app.get("/search")
 def substructure_search(mol: str):
     mol = Chem.MolFromSmiles(mol)
+    if not mol:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail='Invalid input')
     result = {id: smile for id, smile in molecules_db.items() if Chem.MolFromSmiles(
         smile).HasSubstructMatch(mol)}
     return result
