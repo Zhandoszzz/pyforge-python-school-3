@@ -3,8 +3,13 @@ services:
     build: .
     volumes:
       - ./src:/src
+    ports:
+      - "8000:8000"
     environment:
       SERVER_ID: SERVER-1
+    depends_on:
+      - postgres
+      - redis
 
   web2:
     build: .
@@ -12,6 +17,9 @@ services:
       - ./src:/src
     environment:
       SERVER_ID: SERVER-2
+    depends_on:
+      - postgres
+      - redis
       
   nginx:
     image: nginx:latest
@@ -23,6 +31,11 @@ services:
       - web2
       - web1
 
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+    
   postgres:
     image: postgres:latest
     container_name: postgres_drug_app
