@@ -3,8 +3,10 @@ from src.database import async_session_maker
 from sqlalchemy.future import select
 from sqlalchemy import delete
 from rdkit import Chem
-from . import models, schemas
 from src.config import logger
+from src.utils import set_cache, get_cached_result
+from . import models, schemas
+
 
 router = APIRouter(prefix="/drugs", tags=["drugs"])
 
@@ -24,6 +26,12 @@ async def add_drug(drug_data: schemas.DrugCreate):
 
 @router.get("/search")
 async def substructure_search(mol: str):
+    cache_key = f"search:{mol}"
+    cached_result = get_cached_result(cache_key)
+    if cached_result is not None:
+        logger.info("Return cached result")
+        return cached_result
+    
     async with async_session_maker() as session:
         mol = Chem.MolFromSmiles(mol)
         query = select(models.Drug)
@@ -35,7 +43,9 @@ async def substructure_search(mol: str):
                                 detail='Invalid input')
         result = [drug for drug in drugs if Chem.MolFromSmiles(
             drug.smiles).HasSubstructMatch(mol)]
-        logger.info(f"Performed substructure search with {mol}")
+        set_cache(cache_key, result)
+        logger.info(f"Set cache - {cache_key}")
+        logger.info("Performed substructure search")
         return result
 
 
