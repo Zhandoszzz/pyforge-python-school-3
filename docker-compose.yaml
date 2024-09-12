@@ -18,25 +18,26 @@ services:
       - redis
     volumes:
       - ./src:/src
-  # web2:
-  #   build: .
-  #   volumes:
-  #     - ./src:/src
-  #   environment:
-  #     SERVER_ID: SERVER-2
-  #   depends_on:
-  #     - postgres
-  #     - redis
       
-  # nginx:
-  #   image: nginx:latest
-  #   ports:
-  #     - "80:80"
-  #   volumes:
-  #     - ./nginx:/etc/nginx/conf.d
-  #   depends_on:
-  #     - web2
-  #     - web1
+  web2:
+    build: .
+    volumes:
+      - ./src:/src
+    environment:
+      SERVER_ID: SERVER-2
+    depends_on:
+      - postgres
+      - redis
+      
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+    depends_on:
+      - web2
+      - web1
 
   redis:
     image: "redis:alpine"
