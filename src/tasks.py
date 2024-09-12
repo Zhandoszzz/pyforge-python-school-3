@@ -6,10 +6,19 @@ from fastapi import HTTPException, status
 from sqlalchemy.future import select
 from src.drugs import models
 from rdkit import Chem
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
+from src.config import settings
+
+engine = create_engine(
+        f"postgresql://{settings.DB_USER}:{settings.DB_PASSWORD}@"
+        f"{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
+    )
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 @celery.task
-async def add_task_substructure_search(mol):
+def add_task_substructure_search(mol):
     cache_key = f"search:{mol}"
     cached_result = get_cached_result(cache_key)
 
@@ -17,10 +26,10 @@ async def add_task_substructure_search(mol):
         logger.info("Return cached result")
         return cached_result
 
-    async with async_session_maker() as session:
+    with SessionLocal() as session:
         mol = Chem.MolFromSmiles(mol)
         query = select(models.Drug)
-        query_result = await session.execute(query)
+        query_result = session.execute(query)
         drugs = query_result.scalars().all()
         if not mol:
             logger.warning("Invalid SMILE")
