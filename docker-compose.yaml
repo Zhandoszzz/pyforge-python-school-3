@@ -11,25 +11,32 @@ services:
       - postgres
       - redis
 
-  web2:
+  celery_worker:
     build: .
+    command: celery -A src.celery_worker worker --loglevel=info
+    depends_on:
+      - redis
     volumes:
       - ./src:/src
-    environment:
-      SERVER_ID: SERVER-2
-    depends_on:
-      - postgres
-      - redis
+  # web2:
+  #   build: .
+  #   volumes:
+  #     - ./src:/src
+  #   environment:
+  #     SERVER_ID: SERVER-2
+  #   depends_on:
+  #     - postgres
+  #     - redis
       
-  nginx:
-    image: nginx:latest
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx:/etc/nginx/conf.d
-    depends_on:
-      - web2
-      - web1
+  # nginx:
+  #   image: nginx:latest
+  #   ports:
+  #     - "80:80"
+  #   volumes:
+  #     - ./nginx:/etc/nginx/conf.d
+  #   depends_on:
+  #     - web2
+  #     - web1
 
   redis:
     image: "redis:alpine"
