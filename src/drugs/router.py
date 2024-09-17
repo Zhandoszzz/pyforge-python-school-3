@@ -1,19 +1,19 @@
 from fastapi import APIRouter, HTTPException, status
-from src.database import async_session_maker
-from sqlalchemy.future import select
-from sqlalchemy import delete
-from src.tasks import add_task_substructure_search
-from src.config import logger
 from celery.result import AsyncResult
+from sqlalchemy import delete
+from sqlalchemy.future import select
+from src.config import logger
 from src.celery_worker import celery
+from src.database import async_session_maker
 from src.drugs import models, schemas
+from src.tasks import add_task_substructure_search
 
 
 router = APIRouter(prefix="/drugs", tags=["drugs"])
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
-async def add_drug(drug_data: schemas.DrugCreate):
+async def add_drug(drug_data: schemas.DrugCreate) -> schemas.DrugResponse:
     async with async_session_maker() as session:
         async with session.begin():
             new_drug = models.Drug(**drug_data.dict())
@@ -26,13 +26,13 @@ async def add_drug(drug_data: schemas.DrugCreate):
 
 
 @router.get("/search")
-async def start_substructure_search(mol: str):
+async def start_substructure_search(mol: str) -> dict:
     task = add_task_substructure_search.delay(mol)
     return {"task_id": task.id, "status": task.status}
 
 
 @router.get("/search/{task_id}")
-async def get_substructure_search_result(task_id: str):
+async def get_substructure_search_result(task_id: str) -> dict:
     task_result = AsyncResult(task_id, app=celery)
     if task_result.state == 'PENDING':
         return {"task_id": task_id, "status": "Task is still processing"}
@@ -43,7 +43,7 @@ async def get_substructure_search_result(task_id: str):
 
 
 @router.get("/{drug_id}")
-async def get_drug_full_data(drug_id: int):
+async def get_drug_full_data(drug_id: int) -> schemas.DrugResponse:
     async with async_session_maker() as session:
         query = select(models.Drug).filter_by(id=drug_id)
         result = await session.execute(query)
@@ -58,7 +58,7 @@ async def get_drug_full_data(drug_id: int):
 
 
 @router.get("")
-async def get_all_drugs(limit: int = None):
+async def get_all_drugs(limit: int = None) -> list[schemas.DrugResponse]:
     async with async_session_maker() as session:
         query = select(models.Drug)
         if limit is not None:
@@ -74,7 +74,7 @@ async def get_all_drugs(limit: int = None):
 
 
 @router.delete("/{drug_id}")
-async def delete_drug_by_id(drug_id: int):
+async def delete_drug_by_id(drug_id: int) -> dict:
     async with async_session_maker() as session:
         async with session.begin():
             query = select(models.Drug).filter_by(id=drug_id)
@@ -93,7 +93,7 @@ async def delete_drug_by_id(drug_id: int):
 
 
 @router.put("/{drug_id}")
-async def update_drug(drug_id: int, drug_data: schemas.DrugUpdate):
+async def update_drug(drug_id: int, drug_data: schemas.DrugUpdate) -> schemas.DrugResponse:
     async with async_session_maker() as session:
         async with session.begin():
             query = select(models.Drug).filter_by(id=drug_id)

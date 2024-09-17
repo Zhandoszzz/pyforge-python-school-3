@@ -9,7 +9,7 @@ router = APIRouter(prefix="/patients", tags=["patients"])
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
-async def add_patient(patient_data: schemas.PatientCreate):
+async def add_patient(patient_data: schemas.PatientCreate) -> schemas.PatientResponse:
     async with async_session_maker() as session:
         async with session.begin():
             new_patient = models.Patient(**patient_data.dict())
@@ -22,7 +22,7 @@ async def add_patient(patient_data: schemas.PatientCreate):
 
 
 @router.delete("/{patient_id}")
-async def delete_patient_by_id(patient_id: int):
+async def delete_patient_by_id(patient_id: int) -> dict:
     async with async_session_maker() as session:
         async with session.begin():
             query = select(models.Patient).filter_by(id=patient_id)
@@ -41,7 +41,7 @@ async def delete_patient_by_id(patient_id: int):
 
 
 @router.get("")
-async def get_all_patients():
+async def get_all_patients() -> list[schemas.PatientResponse]:
     async with async_session_maker() as session:
         query = select(models.Patient)
         drugs = await session.execute(query)

@@ -11,8 +11,8 @@ class PatientCreate(PatientBase):
     pass
 
 
-class Patient(PatientBase):
+class PatientResponse(PatientBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
