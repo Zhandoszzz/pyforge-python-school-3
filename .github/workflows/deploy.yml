@@ -27,4 +27,4 @@ jobs:
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.PRIVATE_KEY }}
         script: |
-          docker-compose up
+          docker-compose up -d
