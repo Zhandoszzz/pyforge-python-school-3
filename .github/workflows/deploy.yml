@@ -21,6 +21,7 @@ jobs:
 
     - name: Upload code to EC2
       run: |
+        mkdir -p ~/fastapi_app
         APP_DIR=~/fastapi_app
         scp -o StrictHostKeyChecking=no -i ${{ secrets.PRIVATE_KEY }} -r ./ ${EC2_USER}@${EC2_HOST}:${APP_DIR}
     
