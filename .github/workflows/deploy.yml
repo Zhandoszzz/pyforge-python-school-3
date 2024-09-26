@@ -27,10 +27,10 @@ jobs:
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.PRIVATE_KEY }}
         script: |
+          cd /home/ubuntu/app/
           if [ ! -d "/home/ubuntu/app/.git" ]; then
             git clone https://github.com/Zhandoszzz/pyforge-python-school-3
           else
-            cd /home/ubuntu/app/
             git pull origin main
           fi
           docker-compose up -d
