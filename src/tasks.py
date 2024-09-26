@@ -18,7 +18,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 @celery.task
-def add_task_substructure_search(mol):
+def task_substructure_search(mol):
     cache_key = f"search:{mol}"
     cached_result = get_cached_result(cache_key)
 

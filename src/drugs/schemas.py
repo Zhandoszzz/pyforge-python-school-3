@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field, field_validator
 class DrugBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=100, description="Drug name")
     smiles: str = Field(
-        ..., min_length=1, max_length=100, description="structure of chemical molecules"
+        ..., min_length=1, max_length=100, description="Structure of chemical molecules"
     )
 
     @field_validator("smiles")

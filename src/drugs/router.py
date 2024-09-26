@@ -6,7 +6,7 @@ from src.config import logger
 from src.celery_worker import celery
 from src.database import async_session_maker
 from src.drugs import models, schemas
-from src.tasks import add_task_substructure_search
+from src.tasks import task_substructure_search
 
 
 router = APIRouter(prefix="/drugs", tags=["drugs"])
@@ -27,7 +27,7 @@ async def add_drug(drug_data: schemas.DrugCreate) -> schemas.DrugResponse:
 
 @router.get("/search")
 async def start_substructure_search(mol: str) -> dict:
-    task = add_task_substructure_search.delay(mol)
+    task = task_substructure_search.delay(mol)
     return {"task_id": task.id, "status": task.status}
 
 
