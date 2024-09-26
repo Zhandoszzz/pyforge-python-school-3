@@ -1,13 +1,13 @@
-FROM continuumio/miniconda3
+FROM python:3.9-slim
 
-WORKDIR /src
+WORKDIR /app
 
-COPY ./requirements.txt .
+COPY requirements.txt .
 
-RUN pip install --no-cache-dir -r /src/requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY ./src /src
+COPY . .
 
 EXPOSE 8000
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
