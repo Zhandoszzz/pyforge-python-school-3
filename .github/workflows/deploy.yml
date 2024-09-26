@@ -10,7 +10,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v2
 
     - name: Set up AWS CLI
       uses: aws-actions/configure-aws-credentials@v1
@@ -19,15 +19,11 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: eu-north-1
 
-    - name: Copy code to EC2
-      uses: appleboy/scp-action@master
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USER }}
-        key: ${{ secrets.EC2_PRIVATE_KEY }}
-        debug: true
-        source: "."
-        target: "."
+
+    - name: Upload code to EC2
+      run: |
+        scp -i ${{ secrets.EC2_PRIVATE_KEY }} -o StrictHostKeyChecking=no -r ./* ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/app
+        
     
     - name: Run Docker Compose
       uses: appleboy/ssh-action@v0.1.6
