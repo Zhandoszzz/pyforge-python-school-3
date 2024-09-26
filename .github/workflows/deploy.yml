@@ -24,7 +24,7 @@ jobs:
       run: |
           echo "${{ secrets.PRIVATE_KEY }}" > ec2_key.pem
           chmod 400 ec2_key.pem
-          scp -i ec2_key.pem -o StrictHostKeyChecking=no -r . ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:./
+          scp -i ec2_key.pem -o StrictHostKeyChecking=no -r ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:./
           rm ec2_key.pem
     
     - name: Run Docker Compose
