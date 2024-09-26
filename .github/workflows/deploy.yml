@@ -22,7 +22,7 @@ jobs:
 
     - name: Upload code to EC2
       run: |
-        scp -i ${{ secrets.EC2_PRIVATE_KEY }} -o StrictHostKeyChecking=no -r ./* ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/app
+        scp -i ${{ secrets.EC2_PRIVATE_KEY }} -o StrictHostKeyChecking=no -r ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/app
         
     
     - name: Run Docker Compose
