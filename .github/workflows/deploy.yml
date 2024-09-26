@@ -19,13 +19,6 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: eu-north-1
 
-
-    - name: Upload code to EC2
-      run: |
-          echo "${{ secrets.PRIVATE_KEY }}" > ec2_key.pem
-          chmod 400 ec2_key.pem
-          scp -i ec2_key.pem -o StrictHostKeyChecking=no -r ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:./
-          rm ec2_key.pem
     
     - name: Run Docker Compose
       uses: appleboy/ssh-action@v0.1.6
@@ -34,4 +27,4 @@ jobs:
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.PRIVATE_KEY }}
         script: |
-          docker-compose up -d
+          docker-compose up
