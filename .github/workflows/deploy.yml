@@ -33,5 +33,5 @@ jobs:
             cd /home/ubuntu/app/
             git pull origin main
           fi
-          cd /home/ubuntu/app
+          cd /home/ubuntu/app/pyforge-python-school-3
           docker-compose up -d
