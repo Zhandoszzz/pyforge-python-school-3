@@ -95,7 +95,7 @@ As part of our homeworks, we will try to build a web service for storing and sub
 
 ## GitHub Actions: Deploy to EC2
 Workflow automatically deploys a Docker-based application to an EC2 instance whenever changes are pushed to the main or deploy branches.
-
+Created repository secrets
 ### Deploy Steps
 1. **Checkout Code**: The action checks out the repository code to the GitHub Actions runner.
 ```yaml
