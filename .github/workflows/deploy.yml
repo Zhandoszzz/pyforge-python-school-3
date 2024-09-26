@@ -26,7 +26,7 @@ jobs:
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_PRIVATE_KEY }}
         source: "."
-        target: "/app"
+        target: "."
     
     - name: Run Docker Compose
       uses: appleboy/ssh-action@v0.1.6
@@ -35,5 +35,4 @@ jobs:
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_PRIVATE_KEY }}
         script: |
-          cd ~/app
           docker-compose up -d
