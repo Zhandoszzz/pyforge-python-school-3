@@ -31,7 +31,7 @@ jobs:
             git clone https://github.com/Zhandoszzz/pyforge-python-school-3 /home/ubuntu/app
           else
             cd /home/ubuntu/app/
-            git pull origin main
+            git pull origin deploy
           fi
           cd /home/ubuntu/app
           docker-compose up -d
