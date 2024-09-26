@@ -33,4 +33,5 @@ jobs:
           else
             git pull origin main
           fi
+          cd pyforge-python-school-3
           docker-compose up -d
