@@ -22,7 +22,7 @@ jobs:
 
     - name: Upload code to EC2
       run: |
-          echo "${{ secrets.EC2_PRIVATE_KEY }}" > ec2_key.pem
+          echo "${{ secrets.PRIVATE_KEY }}" > ec2_key.pem
           chmod 400 ec2_key.pem
           scp -i ec2_key.pem -o StrictHostKeyChecking=no -r . ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:./
           rm ec2_key.pem
@@ -32,6 +32,6 @@ jobs:
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USER }}
-        key: ${{ secrets.EC2_PRIVATE_KEY }}
+        key: ${{ secrets.PRIVATE_KEY }}
         script: |
           docker-compose up -d
