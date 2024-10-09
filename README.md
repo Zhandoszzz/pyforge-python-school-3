@@ -92,3 +92,41 @@ As part of our homeworks, we will try to build a web service for storing and sub
 
 - **Celery** to speed up queries
 <img title="a title" alt="Alt text" src="./images/9.png">
+
+## GitHub Actions: Deploy to EC2
+Workflow automatically deploys a Docker-based application to an EC2 instance whenever changes are pushed to the main or deploy branches.
+Created repository secrets
+### Deploy Steps
+1. **Checkout Code**: The action checks out the repository code to the GitHub Actions runner.
+```yaml
+    - name: Checkout code
+      uses: actions/checkout@v2
+```
+2. **Set Up AWS CLI**: Configures AWS credentials using secrets stored in the GitHub repository for secure access to the AWS environment.
+```yaml
+    - name: Set up AWS CLI
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-north-1
+```
+3. **Run Docker Compose on EC2**: Connects to the EC2 instance using SSH and ensure that files exist then runs app with docker-compose
+```yaml
+    - name: Run Docker Compose
+      uses: appleboy/ssh-action@v0.1.6
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.PRIVATE_KEY }}
+        script: |
+          if [ ! -d "/home/ubuntu/app/.git" ]; then
+            git clone https://github.com/Zhandoszzz/pyforge-python-school-3 /home/ubuntu/app
+          else
+            cd /home/ubuntu/app/
+            git pull origin deploy
+          fi
+          cd /home/ubuntu/app
+          docker-compose up -d
+
+```
